@@ -7,6 +7,7 @@ use App\Dto\UpdateTaskStatusDto;
 use App\Entity\Task;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
+use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -25,6 +26,31 @@ class TaskController extends AbstractController
     ) {}
 
     #[Route('', methods: ['GET'])]
+    #[OA\Get(
+        path: '/api/tasks',
+        summary: 'Get all tasks',
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'List of tasks',
+                content: new OA\JsonContent(
+                    type: 'array',
+                    items: new OA\Items(
+                        properties: [
+                            new OA\Property(property: 'id', type: 'integer', example: 1),
+                            new OA\Property(property: 'title', type: 'string', example: 'Complete project'),
+                            new OA\Property(property: 'description', type: 'string', example: 'Finish the task management system'),
+                            new OA\Property(property: 'status', type: 'string', enum: ['todo', 'in_progress', 'done'], example: 'todo'),
+                            new OA\Property(property: 'user_id', type: 'integer', example: 1),
+                            new OA\Property(property: 'user_name', type: 'string', example: 'John Doe'),
+                            new OA\Property(property: 'created_at', type: 'string', format: 'date-time', example: '2024-01-01 12:00:00'),
+                            new OA\Property(property: 'updated_at', type: 'string', format: 'date-time', example: '2024-01-01 12:00:00')
+                        ]
+                    )
+                )
+            )
+        ]
+    )]
     public function list(): JsonResponse
     {
         $tasks = $this->entityManager->getRepository(Task::class)->findAll();
@@ -44,6 +70,38 @@ class TaskController extends AbstractController
     }
 
     #[Route('', methods: ['POST'])]
+    #[OA\Post(
+        path: '/api/tasks',
+        summary: 'Create a new task',
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['title', 'user_id'],
+                properties: [
+                    new OA\Property(property: 'title', type: 'string', example: 'Complete project'),
+                    new OA\Property(property: 'description', type: 'string', example: 'Finish the task management system'),
+                    new OA\Property(property: 'user_id', type: 'integer', example: 1)
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(
+                response: 201,
+                description: 'Task created successfully',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'id', type: 'integer', example: 1),
+                        new OA\Property(property: 'title', type: 'string', example: 'Complete project'),
+                        new OA\Property(property: 'description', type: 'string', example: 'Finish the task management system'),
+                        new OA\Property(property: 'status', type: 'string', example: 'todo'),
+                        new OA\Property(property: 'user_id', type: 'integer', example: 1)
+                    ]
+                )
+            ),
+            new OA\Response(response: 400, description: 'Validation error'),
+            new OA\Response(response: 404, description: 'User not found')
+        ]
+    )]
     public function create(Request $request): JsonResponse
     {
         try {

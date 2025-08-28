@@ -5,6 +5,7 @@ namespace App\Controller\Api;
 use App\Dto\CreateUserDto;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
+use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,6 +24,35 @@ class UserController extends AbstractController
     ) {}
 
     #[Route('', methods: ['POST'])]
+    #[OA\Post(
+        path: '/api/users',
+        summary: 'Create a new user',
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['name', 'email'],
+                properties: [
+                    new OA\Property(property: 'name', type: 'string', example: 'John Doe'),
+                    new OA\Property(property: 'email', type: 'string', format: 'email', example: 'john@example.com')
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(
+                response: 201,
+                description: 'User created successfully',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'id', type: 'integer', example: 1),
+                        new OA\Property(property: 'name', type: 'string', example: 'John Doe'),
+                        new OA\Property(property: 'email', type: 'string', example: 'john@example.com')
+                    ]
+                )
+            ),
+            new OA\Response(response: 400, description: 'Validation error'),
+            new OA\Response(response: 409, description: 'Email already exists')
+        ]
+    )]
     public function create(Request $request): JsonResponse
     {
         try {
@@ -62,6 +92,26 @@ class UserController extends AbstractController
     }
 
     #[Route('', methods: ['GET'])]
+    #[OA\Get(
+        path: '/api/users',
+        summary: 'Get all users',
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'List of users',
+                content: new OA\JsonContent(
+                    type: 'array',
+                    items: new OA\Items(
+                        properties: [
+                            new OA\Property(property: 'id', type: 'integer', example: 1),
+                            new OA\Property(property: 'name', type: 'string', example: 'John Doe'),
+                            new OA\Property(property: 'email', type: 'string', example: 'john@example.com')
+                        ]
+                    )
+                )
+            )
+        ]
+    )]
     public function list(): JsonResponse
     {
         $users = $this->entityManager->getRepository(User::class)->findAll();
@@ -76,6 +126,27 @@ class UserController extends AbstractController
     }
 
     #[Route('/{id}', methods: ['GET'])]
+    #[OA\Get(
+        path: '/api/users/{id}',
+        summary: 'Get a single user',
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'User details',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'id', type: 'integer', example: 1),
+                        new OA\Property(property: 'name', type: 'string', example: 'John Doe'),
+                        new OA\Property(property: 'email', type: 'string', example: 'john@example.com')
+                    ]
+                )
+            ),
+            new OA\Response(response: 404, description: 'User not found')
+        ]
+    )]
     public function show(User $user): JsonResponse
     {
         return new JsonResponse([
@@ -86,6 +157,39 @@ class UserController extends AbstractController
     }
 
     #[Route('/{id}', methods: ['PUT'])]
+    #[OA\Put(
+        path: '/api/users/{id}',
+        summary: 'Update a user',
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))
+        ],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                required: ['name', 'email'],
+                properties: [
+                    new OA\Property(property: 'name', type: 'string', example: 'John Doe'),
+                    new OA\Property(property: 'email', type: 'string', format: 'email', example: 'john@example.com')
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'User updated successfully',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'id', type: 'integer', example: 1),
+                        new OA\Property(property: 'name', type: 'string', example: 'John Doe'),
+                        new OA\Property(property: 'email', type: 'string', example: 'john@example.com')
+                    ]
+                )
+            ),
+            new OA\Response(response: 400, description: 'Validation error'),
+            new OA\Response(response: 404, description: 'User not found'),
+            new OA\Response(response: 409, description: 'Email already exists')
+        ]
+    )]
     public function update(User $user, Request $request): JsonResponse
     {
         try {
@@ -123,6 +227,18 @@ class UserController extends AbstractController
     }
 
     #[Route('/{id}', methods: ['DELETE'])]
+    #[OA\Delete(
+        path: '/api/users/{id}',
+        summary: 'Delete a user',
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'integer'))
+        ],
+        responses: [
+            new OA\Response(response: 204, description: 'User deleted successfully'),
+            new OA\Response(response: 404, description: 'User not found'),
+            new OA\Response(response: 409, description: 'Cannot delete user with existing tasks')
+        ]
+    )]
     public function delete(User $user): JsonResponse
     {
         try {
