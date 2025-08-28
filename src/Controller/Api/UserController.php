@@ -74,4 +74,64 @@ class UserController extends AbstractController
 
         return new JsonResponse($data);
     }
+
+    #[Route('/{id}', methods: ['GET'])]
+    public function show(User $user): JsonResponse
+    {
+        return new JsonResponse([
+            'id' => $user->getId(),
+            'name' => $user->getName(),
+            'email' => $user->getEmail()
+        ]);
+    }
+
+    #[Route('/{id}', methods: ['PUT'])]
+    public function update(User $user, Request $request): JsonResponse
+    {
+        try {
+            $dto = $this->serializer->deserialize($request->getContent(), CreateUserDto::class, 'json');
+        } catch (\Exception $e) {
+            return new JsonResponse(['error' => 'Invalid JSON'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $errors = $this->validator->validate($dto);
+        if (count($errors) > 0) {
+            $errorMessages = [];
+            foreach ($errors as $error) {
+                $errorMessages[$error->getPropertyPath()] = $error->getMessage();
+            }
+            return new JsonResponse(['errors' => $errorMessages], Response::HTTP_BAD_REQUEST);
+        }
+
+        $user->setName($dto->name);
+        $user->setEmail($dto->email);
+
+        try {
+            $this->entityManager->flush();
+        } catch (\Exception $e) {
+            if (str_contains($e->getMessage(), 'Duplicate entry')) {
+                return new JsonResponse(['error' => 'Email already exists'], Response::HTTP_CONFLICT);
+            }
+            return new JsonResponse(['error' => 'Database error'], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+        return new JsonResponse([
+            'id' => $user->getId(),
+            'name' => $user->getName(),
+            'email' => $user->getEmail()
+        ]);
+    }
+
+    #[Route('/{id}', methods: ['DELETE'])]
+    public function delete(User $user): JsonResponse
+    {
+        try {
+            $this->entityManager->remove($user);
+            $this->entityManager->flush();
+        } catch (\Exception $e) {
+            return new JsonResponse(['error' => 'Cannot delete user with existing tasks'], Response::HTTP_CONFLICT);
+        }
+
+        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
+    }
 }

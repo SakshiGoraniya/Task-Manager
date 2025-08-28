@@ -24,6 +24,25 @@ class TaskController extends AbstractController
         private SerializerInterface $serializer
     ) {}
 
+    #[Route('', methods: ['GET'])]
+    public function list(): JsonResponse
+    {
+        $tasks = $this->entityManager->getRepository(Task::class)->findAll();
+        
+        $data = array_map(fn($task) => [
+            'id' => $task->getId(),
+            'title' => $task->getTitle(),
+            'description' => $task->getDescription(),
+            'status' => $task->getStatus(),
+            'user_id' => $task->getUser()->getId(),
+            'user_name' => $task->getUser()->getName(),
+            'created_at' => $task->getCreatedAt()->format('Y-m-d H:i:s'),
+            'updated_at' => $task->getUpdatedAt()->format('Y-m-d H:i:s')
+        ], $tasks);
+
+        return new JsonResponse($data);
+    }
+
     #[Route('', methods: ['POST'])]
     public function create(Request $request): JsonResponse
     {
@@ -62,6 +81,62 @@ class TaskController extends AbstractController
             'status' => $task->getStatus(),
             'user_id' => $task->getUser()->getId()
         ], Response::HTTP_CREATED);
+    }
+
+    #[Route('/{id}', methods: ['GET'])]
+    public function show(Task $task): JsonResponse
+    {
+        return new JsonResponse([
+            'id' => $task->getId(),
+            'title' => $task->getTitle(),
+            'description' => $task->getDescription(),
+            'status' => $task->getStatus(),
+            'user_id' => $task->getUser()->getId(),
+            'user_name' => $task->getUser()->getName(),
+            'created_at' => $task->getCreatedAt()->format('Y-m-d H:i:s'),
+            'updated_at' => $task->getUpdatedAt()->format('Y-m-d H:i:s')
+        ]);
+    }
+
+    #[Route('/{id}', methods: ['PUT'])]
+    public function update(Task $task, Request $request): JsonResponse
+    {
+        try {
+            $dto = $this->serializer->deserialize($request->getContent(), CreateTaskDto::class, 'json');
+        } catch (\Exception $e) {
+            return new JsonResponse(['error' => 'Invalid JSON'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $errors = $this->validator->validate($dto);
+        if (count($errors) > 0) {
+            $errorMessages = [];
+            foreach ($errors as $error) {
+                $errorMessages[$error->getPropertyPath()] = $error->getMessage();
+            }
+            return new JsonResponse(['errors' => $errorMessages], Response::HTTP_BAD_REQUEST);
+        }
+
+        $user = $this->entityManager->getRepository(User::class)->find($dto->user_id);
+        if (!$user) {
+            return new JsonResponse(['error' => 'User not found'], Response::HTTP_NOT_FOUND);
+        }
+
+        $task->setTitle($dto->title);
+        $task->setDescription($dto->description);
+        $task->setUser($user);
+
+        $this->entityManager->flush();
+
+        return new JsonResponse([
+            'id' => $task->getId(),
+            'title' => $task->getTitle(),
+            'description' => $task->getDescription(),
+            'status' => $task->getStatus(),
+            'user_id' => $task->getUser()->getId(),
+            'user_name' => $task->getUser()->getName(),
+            'created_at' => $task->getCreatedAt()->format('Y-m-d H:i:s'),
+            'updated_at' => $task->getUpdatedAt()->format('Y-m-d H:i:s')
+        ]);
     }
 
     #[Route('/user/{user}', methods: ['GET'])]

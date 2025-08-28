@@ -1,0 +1,22 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block admin_title %}Edit Task{% endblock %}
+{% block page_title %}Edit Task: {{ task.title }}{% endblock %}
+
+{% block admin_content %}
+<div class="row">
+    <div class="col-md-8">
+        {{ form_start(form) }}
+            {{ form_row(form.title) }}
+            {{ form_row(form.description) }}
+            {{ form_row(form.status) }}
+            {{ form_row(form.user) }}
+            
+            <div class="mb-3">
+                <button type="submit" class="btn btn-primary">Update Task</button>
+                <a href="{{ path('admin_tasks_index') }}" class="btn btn-secondary">Cancel</a>
+            </div>
+        {{ form_end(form) }}
+    </div>
+</div>
+{% endblock %}

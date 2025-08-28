@@ -1,0 +1,27 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block admin_title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block admin_content %}
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Manage Users</h5>
+                <p class="card-text">View, create, edit, and delete users in the system.</p>
+                <a href="{{ path('admin_users_index') }}" class="btn btn-primary">Go to Users</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Manage Tasks</h5>
+                <p class="card-text">View, create, edit, and delete tasks in the system.</p>
+                <a href="{{ path('admin_tasks_index') }}" class="btn btn-primary">Go to Tasks</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

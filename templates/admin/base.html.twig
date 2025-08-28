@@ -1,0 +1,49 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Admin - {% block admin_title %}Task Manager{% endblock %}{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="row">
+        <nav class="col-md-2 d-md-block bg-light sidebar">
+            <div class="sidebar-sticky pt-3">
+                <h5>Task Manager Admin</h5>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link {{ app.request.get('_route') starts with 'admin_dashboard' ? 'active' : '' }}" href="{{ path('admin_dashboard') }}">
+                            Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ app.request.get('_route') starts with 'admin_users' ? 'active' : '' }}" href="{{ path('admin_users_index') }}">
+                            Users
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ app.request.get('_route') starts with 'admin_tasks' ? 'active' : '' }}" href="{{ path('admin_tasks_index') }}">
+                            Tasks
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+            <div class="pt-3 pb-2 mb-3 border-bottom">
+                <h1>{% block page_title %}Admin Panel{% endblock %}</h1>
+            </div>
+
+            {% for type, messages in app.flashes %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ type == 'error' ? 'danger' : type }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endfor %}
+
+            {% block admin_content %}{% endblock %}
+        </main>
+    </div>
+</div>
+{% endblock %}

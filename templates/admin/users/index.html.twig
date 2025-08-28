@@ -1,0 +1,45 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block admin_title %}Users{% endblock %}
+{% block page_title %}Users Management{% endblock %}
+
+{% block admin_content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Users</h2>
+    <a href="{{ path('admin_users_new') }}" class="btn btn-success">Add New User</a>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-striped table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Tasks Count</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+                <tr>
+                    <td>{{ user.id }}</td>
+                    <td>{{ user.name }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.tasks|length }}</td>
+                    <td>
+                        <a href="{{ path('admin_users_edit', {'id': user.id}) }}" class="btn btn-sm btn-outline-primary">Edit</a>
+                        <form method="post" action="{{ path('admin_users_delete', {'id': user.id}) }}" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this user?')">
+                            <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="5" class="text-center">No users found.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

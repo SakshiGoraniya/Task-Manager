@@ -1,0 +1,53 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block admin_title %}Tasks{% endblock %}
+{% block page_title %}Tasks Management{% endblock %}
+
+{% block admin_content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Tasks</h2>
+    <a href="{{ path('admin_tasks_new') }}" class="btn btn-success">Add New Task</a>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-striped table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Status</th>
+                <th>Assigned User</th>
+                <th>Created At</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for task in tasks %}
+                <tr>
+                    <td>{{ task.id }}</td>
+                    <td>{{ task.title }}</td>
+                    <td>{{ task.description|length > 50 ? task.description[:50] ~ '...' : task.description }}</td>
+                    <td>
+                        <span class="badge bg-{{ task.status == 'done' ? 'success' : (task.status == 'in_progress' ? 'warning' : 'secondary') }}">
+                            {{ task.status|replace({'_': ' '})|title }}
+                        </span>
+                    </td>
+                    <td>{{ task.user ? task.user.name : 'N/A' }}</td>
+                    <td>{{ task.createdAt|date('Y-m-d H:i') }}</td>
+                    <td>
+                        <a href="{{ path('admin_tasks_edit', {'id': task.id}) }}" class="btn btn-sm btn-outline-primary">Edit</a>
+                        <form method="post" action="{{ path('admin_tasks_delete', {'id': task.id}) }}" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this task?')">
+                            <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="7" class="text-center">No tasks found.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
