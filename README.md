@@ -48,10 +48,10 @@ cd Task-Manager
 Create your local environment file:
 
 ```bash
-cp .env .env.local
+cp .env.dist .env
 ```
 
-Edit `.env.local` and configure your MySQL credentials:
+Edit `.env` and configure your MySQL credentials:
 
 ```env
 # MySQL Configuration
@@ -102,8 +102,8 @@ The application uses MySQL 8.0 by default. Database configuration is handled thr
 ### Application Settings
 
 Key configuration files:
-- `.env`: Default environment variables
-- `.env.local`: Local overrides (not committed)
+- `.env.dist`: Default environment variables
+- `.env`: Local overrides (not committed)
 - `.env.test`: Test environment configuration
 
 ## Running the Application
