@@ -12,6 +12,14 @@ A modern Task Management system built with Symfony 6.4, featuring both web admin
 - 🐳 **Docker Ready** - Fully containerized with Docker Compose
 - 💾 **MySQL Database** - Robust database with Doctrine ORM
 
+## screenshots:
+1: dashboard
+![alt text](image.png)
+2: user:
+![alt text](image-1.png)
+3: swagger:
+![alt text](image-2.png)
+
 ## Table of Contents
 
 - [Prerequisites](#prerequisites)
@@ -407,6 +415,7 @@ The application supports three task statuses:
 - `todo` - Task is pending
 - `in_progress` - Task is being worked on  
 - `done` - Task is completed
+
 
 ## Contributing
 
